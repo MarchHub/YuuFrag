@@ -36,3 +36,52 @@ for k, v := range table {
 ```
 
 遍历的时候，`k-v` 的顺序未指定，也不保证与前一次遍历相同
+
+## Set
+
+由于 golang 没有提供 `set[T]`，所以通常使用 `map[T]struct{}` 来进行使用
+
+```go
+visited := make(map[string]struct{})
+visited["Alice"] = struct{}{}
+
+_, ok := visited["Alice"]  // 查询
+```
+
+比较好的，`struct{}` 是零大小类型，相当于只是一个 flag，说明我们现在仅关心 Key 是否存在
+
+不过实际上已经有比较成熟的库实现 [golang-set](https://github.com/deckarep/golang-set)
+
+## 注意
+
+小坑点吧
+
+```go
+type Point struct {
+    X int
+    Y int
+}
+
+positions := map[string]Point{}
+
+positions["ID_1"].X = 1  // 非法
+```
+
+`map` 元素不可直接寻址，所以需要
+
+```go
+p := positions["ID_1"]
+p.X = 1
+positions["ID_1"] = p
+```
+
+才是对于 Value 为结构体的时候的合法修改，其原因也比较简单，`map` 返回的是值，而不是一个拥有稳定地址的对象，这样的好处在于，`map` 自己在扩容等的时候，旧地址失效，那么缓存的变量就不会出现垂悬指针之类的麻烦问题
+
+不过也有另外一种常见的解法，即 Value 类型不再是 `T`，而是 `*T`， 即存储一个指针，这样其哪怕返回值，依旧可以直接原地修改
+
+```go
+players := map[string]*Player{
+    "ID_1": {},
+}
+players["ID_1"].X = 1
+```
