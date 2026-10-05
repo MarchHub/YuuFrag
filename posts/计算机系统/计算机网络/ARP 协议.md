@@ -1,3 +1,9 @@
+---
+tags:
+  - 网络协议
+  - 计算机网络
+---
+
 # ARP 协议
 
 Address Resolution Protocol，用于把 IP 地址转化成 MAC 地址 —— 假设在一次发送中，A 知道 B 的 IP，但是在使用以太网发送的时候，以太网帧必须要求填写 MAC 地址，于是会使用一次 ARP 来得到目标的 MAC 地址

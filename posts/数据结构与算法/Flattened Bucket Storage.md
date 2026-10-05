@@ -1,3 +1,9 @@
+---
+tags:
+  - 数据结构与算法
+  - 性能分析
+---
+
 # Flattened Bucket Storage
 
 简单记录下把一个“桶”展平的思路

@@ -1,3 +1,10 @@
+---
+tags:
+  - Unreal Engine
+  - 游戏玩法
+  - 输入与控制
+---
+
 # UE Damage 系统
 
 UE 提供了一套 Damage System，主要数据链路为 —— 发生攻击 -> 生成攻击描述 -> 通知目标 Actor -> Actor 接收攻击描述，gameplay 消费描述
