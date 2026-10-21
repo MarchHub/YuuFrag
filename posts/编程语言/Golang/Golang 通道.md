@@ -27,6 +27,16 @@ ch = make(chan int)
 ch := make(chan int)
 ```
 
+以及对于单向的 channel ——
+
+```go
+// 只能发送
+var sendCh chan<- int = ch
+
+// 只能接收
+var recvCh <-chan int = ch
+```
+
 ## 通道数据操作
 
 使用`<-`这个双目运算符表示数据的流动方向，可以用来往通道内写入数据`ch <- data`，也可以从通道中读取数据`temp = <- ch`
@@ -72,7 +82,7 @@ func NoBufChannelSender(ch chan int) {
     fmt.Println("Data already been sent")
 }
 func ChannelDataReceiver(ch chan int) {
-    time.Sleep(time.Second) // 假设复杂操作使得协程停留 1s
+    time.Sleep(time.Second) // 假设复杂操作使当前线程停留 1s
     fmt.Println("准备接收")
     fmt.Println(<-ch)
     fmt.Println("接收结束")
@@ -140,3 +150,38 @@ Main: C 已放入
 ### 非阻塞尝试与超时控制
 
 可以使用 `select` 的 `default` 分支实现非阻塞尝试，或者使用 `time.After` 实现超时控制
+
+## 注意
+
+`chan` 作为参数传递的时候，虽然是值类型但是依旧是“传递语义”，类似于 map / slice，它们都是多个 view 视图去指向其底层实例，比如
+
+```go
+func produce(out chan<- int) {
+    out <- 42
+}
+
+func consume(in <-chan int) {
+    value := <-in
+    fmt.Println(value)
+}
+
+func main() {
+    ch := make(chan int)
+    done := make(chan struct{})
+
+    go produce(ch)
+
+    go func() {
+        consume(ch)
+        close(done)
+    }()
+
+    <-done
+
+    fmt.Println("main: 所有任务完成")
+}
+```
+
+那么此时虽然 `ch` 作为值传递，但是生产者和消费者依旧操作的是同一个底层的 channel
+
+这样就比较好理解在函数调用链中传递同一个 `context` 的时候，所有方法都可以检测其是否 `Done`（
